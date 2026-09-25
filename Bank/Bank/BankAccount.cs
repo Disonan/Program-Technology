@@ -55,4 +55,8 @@ internal class BankAccount
         _allTransactions.Add(withdrawal);
     }
 
+    public string GetAccountHistory()
+    {
+        return null;
+    }
 }
