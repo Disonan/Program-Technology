@@ -35,6 +35,9 @@ namespace Bank
             interestEarning.PerformMonthAndTransactions();
             Console.WriteLine(interestEarning); //= Console.Writeline(interestEarning.ToString());
             Console.WriteLine(interestEarning.GetAccountHistory());
+
+            GiftCartAccount giftCart = new("pey", 1000m, 5000m);
+            Console.WriteLine(giftCart);
         }
     }
 }
