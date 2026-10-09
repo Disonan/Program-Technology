@@ -1,6 +1,8 @@
-﻿namespace Bank
+﻿using Bank;
+
+namespace Bank
 {
-    internal class Program
+    public class Program
     {
         static void Main(string[] args)
         {
@@ -11,7 +13,7 @@
             Console.WriteLine
                 ($"account: {account2.Owner} {account2.Balance} {account2.Number}");
             
-            account1.MakeDeposit(1000, DateTime.UtcNow, ":)");
+            account1.MakeDeposite(1000, DateTime.UtcNow, ":)");
             Console.WriteLine(account1.Balance);
             
             account1.MakeWithdrawal(100, DateTime.UtcNow, ":(");
@@ -26,6 +28,13 @@
             {
                 Console.WriteLine(e.Message);
             }
+
+            InterestEarningAccount interestEarning = new("pey ", 1000m);
+            interestEarning.MakeDeposite(100m, DateTime.UtcNow, ";)");
+            interestEarning.MakeWithdrawal(10m, DateTime.UtcNow, ";)");
+            interestEarning.PerformMonthAndTransactions();
+            Console.WriteLine(interestEarning); //= Console.Writeline(interestEarning.ToString());
+            Console.WriteLine(interestEarning.GetAccountHistory());
         }
     }
 }

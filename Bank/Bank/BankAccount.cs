@@ -1,6 +1,8 @@
-﻿namespace Bank;
+﻿using System.Text;
 
-internal class BankAccount
+namespace Bank;
+
+public class BankAccount
 {
     private List<Transaction> _allTransactions = new List<Transaction>();
     public string Owner { get; private set; }
@@ -21,11 +23,11 @@ internal class BankAccount
     public BankAccount(string name, decimal initialBalance)
     {
         Owner = name; // this.Owner = name;
-        MakeDeposit(initialBalance, DateTime.UtcNow, "initial balance");
+        MakeDeposite(initialBalance, DateTime.UtcNow, "initial balance");
         Number = s_accountNumberSeed.ToString();
         s_accountNumberSeed++;
     }
-    public void MakeDeposit(decimal amount, DateTime date, string note)
+    public void MakeDeposite(decimal amount, DateTime date, string note)
     {
         if (amount < 0)
         {
@@ -57,6 +59,23 @@ internal class BankAccount
 
     public string GetAccountHistory()
     {
-        return null;
+        var report = new StringBuilder();
+
+        decimal balance = 0;
+        report.AppendLine("Data\t\tAmount\tBalance\tNote");
+        foreach (var item in _allTransactions)
+        {
+            balance += item.Amount;
+            report.AppendLine($"{item.Date.ToShortDateString()}\t{item.Amount}\t{balance}\t{item.Note}");
+        }
+        return report.ToString();
+    }
+
+    public virtual void PerformMonthAndTransactions()
+    { }
+
+    public override string ToString()
+    {
+        return $"Type: {GetType()}\tOwner: {Owner}\tNumber: {Number}\tBalance:{Balance}";
     }
 }
