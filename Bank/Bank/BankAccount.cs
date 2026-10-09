@@ -2,9 +2,23 @@
 
 namespace Bank;
 
+// BankAccoun - потомок класса object => можно переопределить 
+/// <summary>
+/// Банковский счет
+/// <summary>
+
 public class BankAccount
 {
+    /// <summary>
+    /// минимальный допустимый баланс счета
+    /// </summary>
+    private readonly decimal _minimumBalance;
+    /// <summary>
+    /// список всех транзакций
+    ///   </summary>
     private List<Transaction> _allTransactions = new List<Transaction>();
+
+
     public string Owner { get; private set; }
     public decimal Balance
     {
@@ -20,10 +34,15 @@ public class BankAccount
     }
     public string Number { get; }
     private static int s_accountNumberSeed = 1000000000;
-    public BankAccount(string name, decimal initialBalance)
+    public BankAccount(string name, decimal initialBalance) : this(name, initialBalance, 0) { }
+    public BankAccount(string name, decimal initialBalance, decimal minimumBalance)
     {
-        Owner = name; // this.Owner = name;
-        MakeDeposite(initialBalance, DateTime.UtcNow, "initial balance");
+        Owner = name;
+        _minimumBalance = minimumBalance;
+        if (initialBalance > 0)
+        {
+            MakeDeposite(initialBalance, DateTime.UtcNow, "initial balance");
+        }
         Number = s_accountNumberSeed.ToString();
         s_accountNumberSeed++;
     }
@@ -31,30 +50,33 @@ public class BankAccount
     {
         if (amount < 0)
         {
-            throw new ArgumentOutOfRangeException
-                    (nameof(amount), "Amount of deposit must be positive");
+            throw new ArgumentOutOfRangeException(nameof(amount), "Amount off deposite must be positive");
         }
-
         var deposite = new Transaction(amount, date, note);
         _allTransactions.Add(deposite);
     }
 
     public void MakeWithdrawal(decimal amount, DateTime date, string note)
     {
-        if (amount <= 0)
-        {
-            throw new ArgumentOutOfRangeException
-                    (nameof(amount), "Amount of withdawal must be positive");
-        }
+        ArgumentOutOfRangeException.ThrowIfNegativeOrZero(amount);
+        Transaction? overdraftTransaction = CheckWithdrawalLimit(Balance - amount < _minimumBalance);
+        Transaction? withdrawal = new(-amount, date, note);
+        _allTransactions.Add(withdrawal);
 
-        if (Balance < amount)
+        if (overdraftTransaction is not null)
+        {
+            _allTransactions.Add(overdraftTransaction);
+        }
+    }
+
+    protected virtual Transaction? CheckWithdrawalLimit(bool v)
+    {
+        if (v)
         {
             throw new InvalidOperationException
                 ("Not sufficient rubls for this withdrawal");
         }
-
-        var withdrawal = new Transaction(-amount, date, note);
-        _allTransactions.Add(withdrawal);
+        return default;
     }
 
     public string GetAccountHistory()
@@ -71,11 +93,21 @@ public class BankAccount
         return report.ToString();
     }
 
-    public virtual void PerformMonthAndTransactions()
-    { }
 
-    public override string ToString()
+
+    // ключевое слово virtual позволяет в дочерном классе представить другую реализацию метода PerformMonthAndTransactions()
+
+    public virtual void PerformMonthAndTransactions()
+
     {
-        return $"Type: {GetType()}\tOwner: {Owner}\tNumber: {Number}\tBalance:{Balance}";
+
     }
+    // переопрелеояем метод который унаследовали от object 
+    // этот метод должен возвращать строку с состоянием объекта 
+    //public override string ToString()
+    //{
+    //    return $"Type: Owner: {Owner}\tNumber of account: {Number}";
+    //}
+    public override string ToString()
+        => $"Type: {GetType().Name}\tOwner: {Owner}\tNumber of account: {Number}";
 }
