@@ -4,9 +4,9 @@ using NumberQuest.Services;
 
 GameSettingsService settingsService = new GameSettingsService();
 
-Console.WriteLine("");
+Console.WriteLine("==============================");
 Console.WriteLine("       NUMBER QUEST");
-Console.WriteLine("");
+Console.WriteLine("==============================");
 Console.WriteLine();
 
 Console.WriteLine("Выберите уровень сложности:");
@@ -53,7 +53,44 @@ Console.WriteLine("Диапазон: " + settings.MinNumber +
 Console.WriteLine("Попыток: " + settings.MaxAttempts);
 
 Console.WriteLine();
-Console.WriteLine("Настройки успешно применены!");
+Console.WriteLine("Игра начинается!");
+Console.WriteLine();
+
+RandomNumberGeneratorService randomGenerator =
+    new RandomNumberGeneratorService();
+
+GameService game = new GameService(randomGenerator);
+
+game.Start(settings);
+
+while (!game.IsFinished)
+{
+    int guess = ReadNumber(
+        "Введите число: ",
+        settings.MinNumber,
+        settings.MaxNumber);
+
+    game.MakeGuess(guess);
+
+    Console.WriteLine(game.LastMessage);
+    Console.WriteLine(
+        "Использовано попыток: " +
+        game.AttemptsUsed + "/" + settings.MaxAttempts);
+
+    Console.WriteLine();
+}
+
+if (game.IsWon)
+{
+    Console.WriteLine("ПОБЕДА! Вы угадали загаданное число!");
+}
+else
+{
+    Console.WriteLine("ИГРА ОКОНЧЕНА! Попытки закончились.");
+}
+
+Console.WriteLine();
+Console.WriteLine("Спасибо за игру!");
 
 static int ReadNumber(
     string message, int? min = null, int? max = null)
@@ -71,6 +108,7 @@ static int ReadNumber(
             }
         }
 
-        Console.WriteLine("Некорректное значение. Попробуйте ещё раз.");
+        Console.WriteLine(
+            "Некорректное значение. Попробуйте ещё раз.");
     }
 }
